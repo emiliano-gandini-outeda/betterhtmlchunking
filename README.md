@@ -1,4 +1,3 @@
-```markdown
 # betterhtmlchunking
 
 A Python library for intelligently chunking HTML documents into structured, size-limited segments based on DOM tree analysis.
