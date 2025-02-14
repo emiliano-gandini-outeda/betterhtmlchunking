@@ -3,7 +3,7 @@
 A Python library for intelligently chunking HTML documents into structured, size-limited segments based on DOM tree analysis.
 
 ## Our Discord Server:
-[https://discord.gg/2uVF5FZg]
+https://discord.gg/2uVF5FZg
 
 ## Overview
 
