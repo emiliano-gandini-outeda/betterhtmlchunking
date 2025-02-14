@@ -2,6 +2,9 @@
 
 A Python library for intelligently chunking HTML documents into structured, size-limited segments based on DOM tree analysis.
 
+## Our Discord Server:
+[https://discord.gg/2uVF5FZg]
+
 ## Overview
 
 This library processes HTML content to split it into semantically coherent chunks while respecting specified size constraints. It analyzes the DOM structure to identify optimal split points, preserving contextual information and document hierarchy.
