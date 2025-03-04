@@ -19,6 +19,8 @@ from betterhtmlchunking.render_system import\
 
 from typing import Optional
 
+import html
+
 
 tag_list_to_filter_out: list[str] = [
     "/head",
@@ -54,6 +56,10 @@ class DomRepresentation:
         validator=type_validator(),
         default=None
     )
+    html_unescape: bool = attrs.field(
+        validator=type_validator(),
+        default=True
+    )
 
     # Result:
     tree_representation: DOMTreeRepresentation = attrs.field(
@@ -75,6 +81,9 @@ class DomRepresentation:
     def __attrs_post_init__(self):
         if self.tag_list_to_filter_out is None:
             self.tag_list_to_filter_out = tag_list_to_filter_out
+
+        if self.html_unescape is True:
+            self.website_code: str = html.unescape(self.website_code)
 
     def compute_tree_representation(self):
         self.tree_representation = DOMTreeRepresentation(
