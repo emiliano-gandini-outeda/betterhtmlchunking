@@ -9,6 +9,8 @@ https://discord.gg/2uVF5FZg
 
 This library processes HTML content to split it into semantically coherent chunks while respecting specified size constraints. It analyzes the DOM structure to identify optimal split points, preserving contextual information and document hierarchy.
 
+### DeepWiki Docs: [https://deepwiki.carlosplanchon.com/betterhtmlchunking/](https://deepwiki.carlosplanchon.com/betterhtmlchunking/)
+
 ## Key Features
 
 - Custom DOM tree representation. 
