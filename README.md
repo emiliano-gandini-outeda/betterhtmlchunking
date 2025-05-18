@@ -9,7 +9,7 @@ A Python library for intelligently chunking HTML documents into structured, size
 
 This library processes HTML content to split it into semantically coherent chunks while respecting specified size constraints. It analyzes the DOM structure to identify optimal split points, preserving contextual information and document hierarchy.
 
-### DeepWiki Docs: [https://deepwiki.carlosplanchon.com/betterhtmlchunking/](https://deepwiki.carlosplanchon.com/betterhtmlchunking/)
+### DeepWiki Docs: [https://deepwiki.com/carlosplanchon/betterhtmlchunking](https://deepwiki.com/carlosplanchon/betterhtmlchunking)
 
 ## Key Features
 
