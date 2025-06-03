@@ -180,7 +180,7 @@ You can even combine the two techniques if you need both **structured extraction
 The package ships with a small command line interface built with [Typer](https://typer.tiangolo.com/). You can pipe HTML to the tool and obtain a specific chunk as HTML:
 
 ```bash
-cat input.html | betterhtmlchunking --max-length 32768 --chunk-index 1 > chunk.html
+cat input.html | betterhtmlchunking --max-length 32768 --chunk-index 0 > chunk.html
 ```
 
 By default the command reads from `stdin`, processes chunks up to a maximum length of 32,768 characters, and prints the HTML corresponding to chunk index `0` to `stdout`.
