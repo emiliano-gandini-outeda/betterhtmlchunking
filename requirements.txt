@@ -1,6 +1,0 @@
-attrs
-attrs-strict
-treelib
-beautifulsoup4
-parsel-text
-lxml

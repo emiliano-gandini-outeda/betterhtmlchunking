@@ -1,17 +1,14 @@
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
 [options]
 package_dir = "betterhtmlchunking"
 packages = ["betterhtmlchunking"]
 
 [project]
 name = "betterhtmlchunking"
-version = "0.9.2"
+version = "0.9.3"
 authors = [
     { name = "Carlos A. Planchón", email = "carlosandresplanchonprestes@gmail.com" }
 ]
+requires-python = ">=3.11"
 description = "A Python library for intelligent HTML segmentation and ROI extraction. It builds a DOM tree from raw HTML and extracts content-rich regions for efficient web scraping and analysis."
 classifiers = [
     "Intended Audience :: Developers",
