@@ -25,8 +25,12 @@ dependencies = [
     "beautifulsoup4",
     "lxml",
     "treelib",
-    "parsel_text"
+    "parsel_text",
+    "typer"
 ]
+
+[project.scripts]
+betterhtmlchunking = "betterhtmlchunking.cli:app"
 
 [project.urls]
 repository = "https://github.com/carlosplanchon/betterhtmlchunking.git"
