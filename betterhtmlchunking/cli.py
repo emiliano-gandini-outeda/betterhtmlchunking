@@ -1,4 +1,5 @@
 import sys
+
 import typer
 from .main import DomRepresentation, ReprLengthComparisionBy
 
@@ -32,7 +33,7 @@ def chunk(
         website_code=html_input,
         repr_length_compared_by=compare,
     )
-    dom.start()
+    dom.start(verbose=False)
     chunk_html = dom.render_system.html_render_roi.get(chunk_index, "")
     typer.echo(chunk_html)
 
