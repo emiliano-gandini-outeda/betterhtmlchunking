@@ -108,11 +108,23 @@ class DomRepresentation:
             tree_representation=self.tree_representation
         )
 
-    def start(self):
-        print("--- DOM REPRESENTATION ---")
-        print(" > Computing tree representation:")
+    def start(self, verbose: bool = False):
+        """Run the full chunking pipeline.
+
+        Parameters
+        ----------
+        verbose:
+            If ``True``, progress information is printed to stdout.
+            When ``False`` (the default) the method runs silently so that
+            callers such as the CLI can output only the chunk HTML.
+        """
+        if verbose:
+            print("--- DOM REPRESENTATION ---")
+            print(" > Computing tree representation:")
         self.compute_tree_representation()
-        print(" > Computing tree regions system:")
+        if verbose:
+            print(" > Computing tree regions system:")
         self.compute_tree_regions_system()
-        print(" > Computing render:")
+        if verbose:
+            print(" > Computing render:")
         self.compute_render_system()
