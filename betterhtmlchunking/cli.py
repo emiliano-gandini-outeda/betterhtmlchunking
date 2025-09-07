@@ -25,8 +25,8 @@ def chunk(
         False,
         "--text",
         help="Compare length using text instead of HTML",
-    ),
-):
+    )
+        ):
     """Read HTML from stdin and output the selected chunk as HTML."""
     html_input = sys.stdin.read()
     compare = ReprLengthComparisionBy.TEXT_LENGTH if by_text else ReprLengthComparisionBy.HTML_LENGTH
