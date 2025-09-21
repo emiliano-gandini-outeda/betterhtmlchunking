@@ -31,7 +31,6 @@ tag_list_to_filter_out: list[str] = [
     "/defs",
     "/g",
     "/header",
-    "/footer",
     "/script",
     "/style"
 ]
