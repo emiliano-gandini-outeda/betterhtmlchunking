@@ -185,6 +185,14 @@ cat input.html | betterhtmlchunking --max-length 32768 --chunk-index 0 > chunk.h
 
 By default the command reads from `stdin`, processes chunks up to a maximum length of 32,768 characters, and prints the HTML corresponding to chunk index `0` to `stdout`.
 
+### Verbose mode
+
+You can enable progress logging with `--verbose`. Logs are written to `stderr` so they don’t interfere with chunk output:
+
+```bash
+cat input.html | betterhtmlchunking --max-length 32768 --chunk-index 0 --verbose > chunk.html
+```
+
 ## License
 
 MIT License
