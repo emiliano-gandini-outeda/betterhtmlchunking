@@ -1,26 +1,23 @@
 #!/usr/bin/env python3
 
 import attrs
+import html
+import logging
+from typing import Optional
 
 from attrs_strict import type_validator
 
 from betterhtmlchunking.utils import remove_unwanted_tags
+from betterhtmlchunking.tree_representation import DOMTreeRepresentation
+from betterhtmlchunking.tree_regions_system import (
+    TreeRegionsSystem,
+    ReprLengthComparisionBy,
+)
+from betterhtmlchunking.render_system import RenderSystem
 
-from betterhtmlchunking.tree_representation import\
-    DOMTreeRepresentation
 
-from betterhtmlchunking.tree_regions_system import\
-    TreeRegionsSystem
-from betterhtmlchunking.tree_regions_system import\
-    ReprLengthComparisionBy
-
-from betterhtmlchunking.render_system import\
-    RenderSystem
-
-from typing import Optional
-
-import html
-
+# Module-level logger
+logger = logging.getLogger(__name__)
 
 tag_list_to_filter_out: list[str] = [
     "/head",
@@ -32,7 +29,7 @@ tag_list_to_filter_out: list[str] = [
     "/g",
     "/header",
     "/script",
-    "/style"
+    "/style",
 ]
 
 
@@ -52,29 +49,19 @@ class DomRepresentation:
 
     # Optional inputs:
     tag_list_to_filter_out: Optional[list[str]] = attrs.field(
-        validator=type_validator(),
-        default=None
+        validator=type_validator(), default=None
     )
-    html_unescape: bool = attrs.field(
-        validator=type_validator(),
-        default=True
-    )
+    html_unescape: bool = attrs.field(validator=type_validator(), default=True)
 
     # Result:
     tree_representation: DOMTreeRepresentation = attrs.field(
-        validator=type_validator(),
-        init=False,
-        repr=False
+        validator=type_validator(), init=False, repr=False
     )
     tree_regions_system: TreeRegionsSystem = attrs.field(
-        validator=type_validator(),
-        init=False,
-        repr=False
+        validator=type_validator(), init=False, repr=False
     )
     render_system: RenderSystem = attrs.field(
-        validator=type_validator(),
-        init=False,
-        repr=False
+        validator=type_validator(), init=False, repr=False
     )
 
     def __attrs_post_init__(self):
@@ -90,7 +77,7 @@ class DomRepresentation:
         )
         self.tree_representation = remove_unwanted_tags(
             tree_representation=self.tree_representation,
-            tag_list_to_filter_out=self.tag_list_to_filter_out
+            tag_list_to_filter_out=self.tag_list_to_filter_out,
         )
         self.tree_representation.recompute_representation()
 
@@ -98,13 +85,13 @@ class DomRepresentation:
         self.tree_regions_system = TreeRegionsSystem(
             tree_representation=self.tree_representation,
             max_node_repr_length=self.MAX_NODE_REPR_LENGTH,
-            repr_length_compared_by=self.repr_length_compared_by
+            repr_length_compared_by=self.repr_length_compared_by,
         )
 
     def compute_render_system(self):
         self.render_system = RenderSystem(
             tree_regions_system=self.tree_regions_system,
-            tree_representation=self.tree_representation
+            tree_representation=self.tree_representation,
         )
 
     def start(self, verbose: bool = False):
@@ -113,17 +100,19 @@ class DomRepresentation:
         Parameters
         ----------
         verbose:
-            If ``True``, progress information is printed to stdout.
+            If ``True``, progress information is logged at INFO level.
             When ``False`` (the default) the method runs silently so that
             callers such as the CLI can output only the chunk HTML.
         """
         if verbose:
-            print("--- DOM REPRESENTATION ---")
-            print(" > Computing tree representation:")
+            logger.info("--- DOM REPRESENTATION ---")
+            logger.info(" > Computing tree representation:")
         self.compute_tree_representation()
+
         if verbose:
-            print(" > Computing tree regions system:")
+            logger.info(" > Computing tree regions system:")
         self.compute_tree_regions_system()
+
         if verbose:
-            print(" > Computing render:")
+            logger.info(" > Computing render:")
         self.compute_render_system()
