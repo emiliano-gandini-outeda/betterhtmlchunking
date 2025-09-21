@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import sys
-
 import typer
-from .main import DomRepresentation, ReprLengthComparisionBy
+from .main import DomRepresentation, ReprLengthComparisionBy, logger
+import logging
 
 app = typer.Typer(help="Chunk HTML documents from the command line")
 
@@ -25,19 +25,40 @@ def chunk(
         False,
         "--text",
         help="Compare length using text instead of HTML",
-    )
-        ):
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Enable verbose logging output",
+    ),
+    maximal_verbose: bool = typer.Option(
+        False, "--maximal-verbose", help="Enable maximal verbose logging"
+    ),
+):
     """Read HTML from stdin and output the selected chunk as HTML."""
+
+    # Adjust logger level
+    logger.setLevel(logging.INFO if (verbose or maximal_verbose) else logging.WARNING)
+
     html_input = sys.stdin.read()
-    compare = ReprLengthComparisionBy.TEXT_LENGTH if by_text else ReprLengthComparisionBy.HTML_LENGTH
+    compare = (
+        ReprLengthComparisionBy.TEXT_LENGTH
+        if by_text
+        else ReprLengthComparisionBy.HTML_LENGTH
+    )
+
     dom = DomRepresentation(
         MAX_NODE_REPR_LENGTH=max_length,
         website_code=html_input,
         repr_length_compared_by=compare,
     )
-    dom.start(verbose=False)
+    dom.start(verbose=verbose, maximal_verbose=maximal_verbose)
+
+    # Chunk HTML always goes to stdout
     chunk_html = dom.render_system.html_render_roi.get(chunk_index, "")
     typer.echo(chunk_html)
+
 
 if __name__ == "__main__":
     app()

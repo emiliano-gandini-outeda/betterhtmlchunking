@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
 
 import attrs
-
-from attrs_strict import type_validator
-
-from betterhtmlchunking.utils import remove_unwanted_tags
-
-from betterhtmlchunking.tree_representation import\
-    DOMTreeRepresentation
-
-from betterhtmlchunking.tree_regions_system import\
-    TreeRegionsSystem
-from betterhtmlchunking.tree_regions_system import\
-    ReprLengthComparisionBy
-
-from betterhtmlchunking.render_system import\
-    RenderSystem
-
+import html
+import logging
 from typing import Optional
 
-import html
+from attrs_strict import type_validator
+from betterhtmlchunking.utils import remove_unwanted_tags
+from betterhtmlchunking.tree_representation import DOMTreeRepresentation
+from betterhtmlchunking.tree_regions_system import (
+    TreeRegionsSystem,
+    ReprLengthComparisionBy,
+)
+from betterhtmlchunking.render_system import RenderSystem
 
+# Module-level logger
+logger = logging.getLogger(__name__)
+logger.propagate = False  # Prevent double logging
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter("%(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)  # default; CLI can override
 
 tag_list_to_filter_out: list[str] = [
     "/head",
@@ -32,65 +34,58 @@ tag_list_to_filter_out: list[str] = [
     "/g",
     "/header",
     "/script",
-    "/style"
+    "/style",
 ]
 
 
 @attrs.define()
 class DomRepresentation:
-    # Input:
+    # Input
     MAX_NODE_REPR_LENGTH: int = attrs.field(
         validator=type_validator()
     )
     website_code: str = attrs.field(
-        validator=type_validator(),
+        validator=type_validator(), 
         repr=False
     )
     repr_length_compared_by: ReprLengthComparisionBy = attrs.field(
         validator=type_validator()
     )
 
-    # Optional inputs:
+    # Optional inputs
     tag_list_to_filter_out: Optional[list[str]] = attrs.field(
-        validator=type_validator(),
+        validator=type_validator(), 
         default=None
     )
     html_unescape: bool = attrs.field(
-        validator=type_validator(),
+        validator=type_validator(), 
         default=True
     )
 
-    # Result:
+    # Result
     tree_representation: DOMTreeRepresentation = attrs.field(
-        validator=type_validator(),
-        init=False,
-        repr=False
+        validator=type_validator(), init=False, repr=False
     )
     tree_regions_system: TreeRegionsSystem = attrs.field(
-        validator=type_validator(),
-        init=False,
-        repr=False
+        validator=type_validator(), init=False, repr=False
     )
     render_system: RenderSystem = attrs.field(
-        validator=type_validator(),
-        init=False,
-        repr=False
+        validator=type_validator(), init=False, repr=False
     )
 
     def __attrs_post_init__(self):
         if self.tag_list_to_filter_out is None:
             self.tag_list_to_filter_out = tag_list_to_filter_out
-
-        if self.html_unescape is True:
-            self.website_code: str = html.unescape(self.website_code)
+        if self.html_unescape:
+            self.website_code = html.unescape(self.website_code)
 
     def compute_tree_representation(self):
         self.tree_representation = DOMTreeRepresentation(
-            website_code=self.website_code,
+            website_code=self.website_code
         )
         self.tree_representation = remove_unwanted_tags(
             tree_representation=self.tree_representation,
-            tag_list_to_filter_out=self.tag_list_to_filter_out
+            tag_list_to_filter_out=self.tag_list_to_filter_out,
         )
         self.tree_representation.recompute_representation()
 
@@ -98,32 +93,61 @@ class DomRepresentation:
         self.tree_regions_system = TreeRegionsSystem(
             tree_representation=self.tree_representation,
             max_node_repr_length=self.MAX_NODE_REPR_LENGTH,
-            repr_length_compared_by=self.repr_length_compared_by
+            repr_length_compared_by=self.repr_length_compared_by,
         )
 
     def compute_render_system(self):
         self.render_system = RenderSystem(
             tree_regions_system=self.tree_regions_system,
-            tree_representation=self.tree_representation
+            tree_representation=self.tree_representation,
         )
 
-    def start(self, verbose: bool = False):
-        """Run the full chunking pipeline.
+    def start(self, verbose: bool = False, maximal_verbose: bool = False):
+        """Run the full chunking pipeline with optional verbose logging.
 
         Parameters
         ----------
         verbose:
-            If ``True``, progress information is printed to stdout.
-            When ``False`` (the default) the method runs silently so that
-            callers such as the CLI can output only the chunk HTML.
+            Logs high-level pipeline steps.
+        maximal_verbose:
+            Logs detailed DOM, node info, ROIs, and chunk info.
         """
-        if verbose:
-            print("--- DOM REPRESENTATION ---")
-            print(" > Computing tree representation:")
+        if verbose or maximal_verbose:
+            logger.info("--- DOM REPRESENTATION ---")
+            logger.info(" > Computing tree representation:")
         self.compute_tree_representation()
-        if verbose:
-            print(" > Computing tree regions system:")
+
+        if maximal_verbose:
+            all_nodes = self.tree_representation.tree.all_nodes()
+            logger.info(f"Total nodes in DOM tree: {len(all_nodes)}")
+            for node in all_nodes:
+                if node.data is not None:
+                    logger.info(
+                        f"Node XPath: {node.identifier}, "
+                        f"HTML length: {node.data.html_length}, "
+                        f"Text length: {node.data.text_length}"
+                    )
+
+        if verbose or maximal_verbose:
+            logger.info(" > Computing tree regions system:")
         self.compute_tree_regions_system()
-        if verbose:
-            print(" > Computing render:")
+
+        if maximal_verbose:
+            roi_count = len(self.tree_regions_system.sorted_roi_by_pos_xpath)
+            logger.info(f"Total ROIs (chunks): {roi_count}")
+            for idx in self.tree_regions_system.sorted_roi_by_pos_xpath:
+                roi = self.tree_regions_system.sorted_roi_by_pos_xpath[idx]
+                logger.info(
+                    f"ROI {idx}: HTML length {roi.repr_length}, Nodes XPaths: {roi.pos_xpath_list}"
+                )
+
+        if verbose or maximal_verbose:
+            logger.info(" > Computing render:")
         self.compute_render_system()
+
+        if maximal_verbose:
+            for idx, html_chunk in self.render_system.html_render_roi.items():
+                text_chunk = self.render_system.text_render_roi.get(idx, "")
+                logger.info(
+                    f"Chunk {idx}: HTML {len(html_chunk)} chars, Text {len(text_chunk)} chars"
+                )
