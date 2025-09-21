@@ -193,6 +193,25 @@ You can enable progress logging with `--verbose`. Logs are written to `stderr` s
 cat input.html | betterhtmlchunking --max-length 32768 --chunk-index 0 --verbose > chunk.html
 ```
 
+### Maximal Verbose Mode
+
+For a detailed inspection of the DOM, nodes, ROIs, and chunk lengths, use `--maximal-verbose`. This logs:
+
+* Total DOM nodes and their HTML/text lengths
+* Each ROI (region of interest) with constituent node XPaths and lengths
+* Final chunk HTML and text sizes
+
+```bash
+cat input.html | betterhtmlchunking --max-length 32768 --chunk-index 0 --maximal-verbose > chunk.html 2> logs.txt
+```
+
+* `chunk.html` contains the selected chunk HTML.
+* `logs.txt` captures all detailed logging information.
+
+This mode is useful for debugging, testing, or analyzing how the document is split into chunks.
+
+---
+
 ## License
 
 MIT License
