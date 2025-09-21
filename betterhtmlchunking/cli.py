@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import sys
-import logging
 import typer
-from .main import DomRepresentation, ReprLengthComparisionBy
+from .main import DomRepresentation, ReprLengthComparisionBy, logger
+import logging
 
 app = typer.Typer(help="Chunk HTML documents from the command line")
 
@@ -32,15 +32,14 @@ def chunk(
         "-v",
         help="Enable verbose logging output",
     ),
+    maximal_verbose: bool = typer.Option(
+        False, "--maximal-verbose", help="Enable maximal verbose logging"
+    ),
 ):
     """Read HTML from stdin and output the selected chunk as HTML."""
 
-    # --- Logging Config to stderr ---
-    logging.basicConfig(
-        level=logging.INFO if verbose else logging.WARNING,
-        format="%(message)s",
-        stream=sys.stderr,
-    )
+    # Adjust logger level
+    logger.setLevel(logging.INFO if (verbose or maximal_verbose) else logging.WARNING)
 
     html_input = sys.stdin.read()
     compare = (
@@ -54,7 +53,7 @@ def chunk(
         website_code=html_input,
         repr_length_compared_by=compare,
     )
-    dom.start(verbose=verbose)
+    dom.start(verbose=verbose, maximal_verbose=maximal_verbose)
 
     # Chunk HTML always goes to stdout
     chunk_html = dom.render_system.html_render_roi.get(chunk_index, "")
