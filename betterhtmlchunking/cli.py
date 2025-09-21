@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-
+import logging
 import typer
 from .main import DomRepresentation, ReprLengthComparisionBy
 
@@ -25,19 +25,41 @@ def chunk(
         False,
         "--text",
         help="Compare length using text instead of HTML",
-    )
-        ):
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Enable verbose logging output",
+    ),
+):
     """Read HTML from stdin and output the selected chunk as HTML."""
+
+    # --- Logging Config to stderr ---
+    logging.basicConfig(
+        level=logging.INFO if verbose else logging.WARNING,
+        format="%(message)s",
+        stream=sys.stderr,
+    )
+
     html_input = sys.stdin.read()
-    compare = ReprLengthComparisionBy.TEXT_LENGTH if by_text else ReprLengthComparisionBy.HTML_LENGTH
+    compare = (
+        ReprLengthComparisionBy.TEXT_LENGTH
+        if by_text
+        else ReprLengthComparisionBy.HTML_LENGTH
+    )
+
     dom = DomRepresentation(
         MAX_NODE_REPR_LENGTH=max_length,
         website_code=html_input,
         repr_length_compared_by=compare,
     )
-    dom.start(verbose=False)
+    dom.start(verbose=verbose)
+
+    # Chunk HTML always goes to stdout
     chunk_html = dom.render_system.html_render_roi.get(chunk_index, "")
     typer.echo(chunk_html)
+
 
 if __name__ == "__main__":
     app()
